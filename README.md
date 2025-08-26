@@ -38,7 +38,7 @@ pip install -r requirements.txt
 python cli.py record
 ```
 
-* 制御キーは(s,w,q,h)です。
+制御キーは(s,w,q,h)です：
   * sは記録開始のコマンド
   * wは記録保存のコマンド
   * qは停止のコマンド
