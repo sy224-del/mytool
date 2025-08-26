@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "created_at": "2025-08-26T16:06:59.722095",
+    "total_actions": 5,
+    "recording_duration": 9.817361116409302
+  },
+  "actions": [
+    {
+      "type": "mouse_double_click",
+      "x": 1482.62646484375,
+      "y": 977.8634643554688,
+      "timestamp": 1756192006.340825,
+      "relative_time": 3.457787036895752
+    },
+    {
+      "type": "mouse_press",
+      "x": 897.6100463867188,
+      "y": 414.0120544433594,
+      "button": "Button.left",
+      "timestamp": 1756192009.708771,
+      "relative_time": 6.825732946395874
+    },
+    {
+      "type": "mouse_release",
+      "x": 897.6100463867188,
+      "y": 414.0120544433594,
+      "button": "Button.left",
+      "duration": 0.3590669631958008,
+      "timestamp": 1756192010.067838,
+      "relative_time": 7.184799909591675
+    },
+    {
+      "type": "mouse_press",
+      "x": 3082.4560546875,
+      "y": 855.8265991210938,
+      "button": "Button.left",
+      "timestamp": 1756192012.6331809,
+      "relative_time": 9.750142812728882
+    },
+    {
+      "type": "mouse_release",
+      "x": 3082.4560546875,
+      "y": 855.8265991210938,
+      "button": "Button.left",
+      "duration": 0.06721830368041992,
+      "timestamp": 1756192012.7003992,
+      "relative_time": 9.817361116409302
+    }
+  ]
+}
