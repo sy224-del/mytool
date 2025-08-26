@@ -21,7 +21,7 @@ mytool/
 
 ## 必要環境
 
-- Python 3.x
+- Python 3.10.4
 - ライブラリは `requirements.txt` からインストール可能
 
 ```bash
