@@ -272,7 +272,7 @@ def print_help():
     print("1: 通常速度で再生")
     print("2: 2倍速で再生")
     print("3: 3倍速で再生")
-    print("s: 再生停止")
+    #print("s: 再生停止")
     print("h: このヘルプを表示")
     print("q: プログラム終了")
     print("=" * 60)
@@ -315,11 +315,6 @@ def main(filename):
             elif key == "3":
                 print("[INFO] 3倍速で再生開始...")
                 player.play_all_actions(speed_multiplier=3.0)
-                print("[INFO] 次のコマンドを待機中...")
-
-            elif key == "s":
-                player.stop_playback()
-                print("[INFO] 再生停止リクエスト送信")
                 print("[INFO] 次のコマンドを待機中...")
 
             elif key == "h":
