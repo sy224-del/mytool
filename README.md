@@ -30,7 +30,7 @@ pip install -r requirements.txt
 ```
 ---
 
-##使い方
+## 使い方
 
 ### 記録
 操作を記録するには以下を実行します：
