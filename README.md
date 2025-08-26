@@ -6,7 +6,7 @@ PC操作を記録・再生するためのツールです。
 ---
 
 ## フォルダ構成
-'''mytool/
+'''mytool/'''
 ├── core/ # 記録・再生のメインコード
 │ ├── record_core.py
 │ ├── replay_core.py
