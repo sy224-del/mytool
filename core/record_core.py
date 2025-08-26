@@ -320,7 +320,7 @@ class RecordingManager:
         self.recorded_actions = []
         self.recording_start_time = None
         # 記録しない制御キーのリスト
-        self.control_keys = {"s", "w", "q", "h", "k"}
+        self.control_keys = {"s", "w", "q", "h"}
         # ファイル名入力中かどうかのフラグ
         self.is_inputting_filename = False
 
@@ -437,7 +437,6 @@ def print_help():
     print("=" * 50)
     print("s: 保存モード開始/停止")
     print("w: 記録された操作をJSONファイルに保存")
-    print("k: 現在押されているキーを表示")
     print("h: このヘルプを表示")
     print("q: プログラム終了")
     print("=" * 50)
@@ -494,15 +493,6 @@ def main():
             elif key == "q":
                 print("[INFO] プログラムを終了します...")
                 break
-
-            elif key == "k":
-                # 現在押されているキーを表示
-                current_keys = keyboard_detector.get_current_keys()
-                if current_keys:
-                    print(f"[INFO] 現在押されているキー: {', '.join(current_keys)}")
-                else:
-                    print("[INFO] 現在押されているキーはありません")
-                print("[INFO] 次の操作を待機中...")
 
             elif key == "h":
                 print_help()

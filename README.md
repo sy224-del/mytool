@@ -10,8 +10,8 @@ PC操作を記録・再生するためのツールです。
 mytool/
 ├── core/ # 記録・再生のメインコード
 │ ├── record_core.py
-│ ├── replay_core.py
-│ └── cli.py
+│ └── replay_core.py
+├── cli.py
 ├── records/ # 記録されたJSONファイルが保存されるフォルダ
 ├── requirements.txt
 └── README.md
@@ -25,7 +25,6 @@ mytool/
 - ライブラリは `requirements.txt` からインストール可能
 
 ```
-bash
 pip install -r requirements.txt
 ```
 ---
@@ -36,6 +35,11 @@ pip install -r requirements.txt
 操作を記録するには以下を実行します：
 
 ```
-bash
-python core/cli.py record
+python cli.py record
 ```
+
+制御キーは(s,w,q,h)です。
+* sは記録開始のコマンド
+* wは記録保存のコマンド
+* qは停止のコマンド
+* hはヘルプのコマンド
