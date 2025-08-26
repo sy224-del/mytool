@@ -6,14 +6,14 @@ PC操作を記録・再生するためのツールです。
 ---
 
 ## フォルダ構成
-mytool/
+'''mytool/
 ├── core/ # 記録・再生のメインコード
 │ ├── record_core.py
 │ ├── replay_core.py
 │ └── cli.py
 ├── records/ # 記録されたJSONファイルが保存されるフォルダ
 ├── requirements.txt
-└── README.md
+└── README.md'''
 
 ---
 
