@@ -379,6 +379,10 @@ class RecordingManager:
             print("[ERROR] 保存する操作がありません")
             return None
 
+        # records フォルダを作成（存在しない場合）
+        records_dir = os.path.join(os.path.dirname(__file__), "..", "records")
+        os.makedirs(records_dir, exist_ok=True)
+
         if not filename:
             # ファイル名入力中フラグを設定
             self.set_inputting_filename(True)
@@ -400,6 +404,9 @@ class RecordingManager:
                 filename = f"{user_filename.strip()}.json"
                 print(f"[SAVE] ファイル名: {filename}")
 
+        # 保存パスを records フォルダに設定
+        filepath = os.path.join(records_dir, filename)
+
         # 記録データを整理
         recording_data = {
             "metadata": {
@@ -415,14 +422,13 @@ class RecordingManager:
         }
 
         try:
-            with open(filename, "w", encoding="utf-8") as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(recording_data, f, ensure_ascii=False, indent=2)
-            print(f"[RECORD] 操作を {filename} に保存しました")
-            return filename
+            print(f"[RECORD] 操作を {filepath} に保存しました")
+            return filepath
         except Exception as e:
             print(f"[ERROR] ファイル保存に失敗しました: {e}")
             return None
-
 
 def print_help():
     """ヘルプメッセージを表示"""

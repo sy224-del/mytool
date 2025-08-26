@@ -71,6 +71,7 @@ class ActionPlayer:
                 x, y = action.get("x"), action.get("y")
                 button = self._parse_button(action.get("button"))
                 self.mouse_controller.position = (x, y)
+                time.sleep(0.05)
                 self.mouse_controller.press(button)
                 print(f"[PLAY] マウス押下: ({x}, {y}) - {button}")
 
@@ -78,6 +79,7 @@ class ActionPlayer:
                 x, y = action.get("x"), action.get("y")
                 button = self._parse_button(action.get("button"))
                 self.mouse_controller.position = (x, y)
+                time.sleep(0.05)
                 self.mouse_controller.release(button)
                 print(f"[PLAY] マウス離上: ({x}, {y}) - {button}")
 
