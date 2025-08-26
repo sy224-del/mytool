@@ -24,15 +24,18 @@ mytool/
 - Python 3.10.4
 - ライブラリは `requirements.txt` からインストール可能
 
-```bash
+```
+bash
 pip install -r requirements.txt
-
+```
 ---
 
-## 使い方
+##使い方
 
 ### 記録
 操作を記録するには以下を実行します：
 
-```bash
+```
+bash
 python core/cli.py record
+```
