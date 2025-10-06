@@ -1,0 +1,60 @@
+# 同時押しコマンド定義ファイル
+# フォーマット: key+key(+key...)=説明
+
+# システム操作
+ctrl+alt+delete=セキュリティオプションを開く
+ctrl+shift+esc=タスクマネージャーを開く
+alt+f4=アプリを終了
+win+L=画面をロック
+win+D=デスクトップを表示/非表示
+win+E=エクスプローラーを開く
+win+R=「ファイル名を指定して実行」を開く
+win+I=設定を開く
+win+S=検索を開く
+win+X=クイックリンクメニューを開く
+win+Tab=タスクビューを開く
+alt+tab=アプリを切り替え
+
+# ウィンドウ操作
+win+up=ウィンドウを最大化
+win+down=ウィンドウを最小化/元に戻す
+win+left=ウィンドウを左にスナップ
+win+right=ウィンドウを右にスナップ
+alt+space=ウィンドウの操作メニューを開く
+
+# スクリーンショット
+printscreen=画面全体をキャプチャ
+alt+printscreen=アクティブウィンドウをキャプチャ
+win+printscreen=画面全体をキャプチャし保存
+win+shift+s=選択範囲をキャプチャ（Snip & Sketch）
+
+# 編集/テキスト操作
+ctrl+c=コピー
+ctrl+x=カット
+ctrl+v=ペースト
+ctrl+z=元に戻す
+ctrl+y=やり直す
+ctrl+a=すべて選択
+ctrl+f=検索
+ctrl+s=保存
+ctrl+p=印刷
+ctrl+b=太字
+ctrl+i=斜体
+ctrl+u=下線
+
+# ナビゲーション/カーソル移動
+ctrl+right=次の単語へ移動
+ctrl+left=前の単語へ移動
+ctrl+up=前の段落へ移動
+ctrl+down=次の段落へ移動
+shift+矢印=範囲選択
+home=行頭に移動
+end=行末に移動
+ctrl+home=文書の先頭に移動
+ctrl+end=文書の末尾に移動
+
+# 仮想デスクトップ
+win+ctrl+d=新しい仮想デスクトップを追加
+win+ctrl+right=次の仮想デスクトップへ
+win+ctrl+left=前の仮想デスクトップへ
+win+ctrl+F4=現在の仮想デスクトップを閉じる

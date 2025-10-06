@@ -8,6 +8,7 @@ import tty
 from pynput import mouse, keyboard
 from datetime import datetime
 import argparse
+import threading
 
 
 # 1文字だけキーボード入力を取得する（Enter不要）
@@ -25,6 +26,38 @@ def getch():
     return ch
 
 
+def get_interval_input():
+    """待ち時間間隔の入力を取得"""
+    print("\n[INPUT] 待ち時間間隔を入力してください（秒）:")
+    print("[INPUT] 例: 0.1 (0.1秒間隔), 0.05 (0.05秒間隔), 0 (待機なし)")
+    print("[INPUT] デフォルト値: 0.05秒")
+
+    try:
+        # 通常の入力モードに戻す
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+        user_input = input("間隔(秒): ").strip()
+
+        if not user_input:
+            return 0.05  # デフォルト値
+
+        interval = float(user_input)
+        if interval < 0:
+            print("[WARNING] 負の値は無効です。デフォルト値(0.05)を使用します。")
+            return 0.05
+
+        return interval
+
+    except ValueError:
+        print("[WARNING] 無効な数値です。デフォルト値(0.05)を使用します。")
+        return 0.05
+    except Exception as e:
+        print(f"[WARNING] 入力エラー: {e}。デフォルト値(0.05)を使用します。")
+        return 0.05
+
+
 class ActionPlayer:
     def __init__(self):
         self.mouse_controller = mouse.Controller()
@@ -32,6 +65,8 @@ class ActionPlayer:
         self.is_playing = False
         self.current_action_index = 0
         self.total_actions = 0
+        self.force_stop = False
+        self.keyboard_listener = None
 
     def load_actions(self, filename):
         """JSONファイルから操作を読み込み"""
@@ -116,16 +151,11 @@ class ActionPlayer:
             elif action_type == "key_combination":
                 keys = action.get("keys", [])
                 action_name = action.get("action", "")
-                for key in keys:
-                    key_obj = self._parse_key(key)
-                    if key_obj:
-                        self.keyboard_controller.press(key_obj)
-                time.sleep(0.1)  # 少し待機
-                for key in reversed(keys):  # 逆順で離上
-                    key_obj = self._parse_key(key)
-                    if key_obj:
-                        self.keyboard_controller.release(key_obj)
-                print(f"[PLAY] 同時押し: {' + '.join(keys)} → {action_name}")
+                if keys:
+                    # hotkeyは可変長引数を取るのでリストを * 展開する
+                    pyautogui.hotkey(*keys, timeout=0.1)
+                    print(*keys)
+                    print(f"[PLAY] 同時押し: {' + '.join(keys)} → {action_name}")
 
         except Exception as e:
             print(f"[ERROR] 操作実行エラー: {e}")
@@ -190,6 +220,31 @@ class ActionPlayer:
 
         return None
 
+    def _on_key_press(self, key):
+        """キー入力の監視（再生中の強制終了用）"""
+        try:
+            # ESCキーのみで強制終了
+            if key == keyboard.Key.esc:
+                self.force_stop = True
+                print("\n[STOP] ESCキーが押されました。再生を停止します...")
+        except AttributeError:
+            # 特殊キーの場合
+            if key == keyboard.Key.esc:
+                self.force_stop = True
+                print("\n[STOP] ESCキーが押されました。再生を停止します...")
+
+    def _start_keyboard_listener(self):
+        """キーボードリスナーを開始"""
+        if self.keyboard_listener is None:
+            self.keyboard_listener = keyboard.Listener(on_press=self._on_key_press)
+            self.keyboard_listener.start()
+
+    def _stop_keyboard_listener(self):
+        """キーボードリスナーを停止"""
+        if self.keyboard_listener is not None:
+            self.keyboard_listener.stop()
+            self.keyboard_listener = None
+
     def play_all_actions(self, speed_multiplier=1.0):
         """すべての操作を再生"""
         if not self.actions:
@@ -197,38 +252,106 @@ class ActionPlayer:
             return
 
         self.is_playing = True
+        self.force_stop = False
         self.current_action_index = 0
+
+        # キーボードリスナーを開始
+        self._start_keyboard_listener()
 
         print(f"[PLAY] 再生開始 (速度: {speed_multiplier}x)")
         print(f"[PLAY] 操作数: {self.total_actions}")
+        print("[PLAY] 再生中にESCキーを押すと強制停止できます")
 
         start_time = time.time()
 
-        for i, action in enumerate(self.actions):
-            if not self.is_playing:
-                print("[PLAY] 再生を停止しました")
-                break
+        try:
+            for i, action in enumerate(self.actions):
+                if not self.is_playing or self.force_stop:
+                    print("[PLAY] 再生を停止しました")
+                    break
 
-            self.current_action_index = i + 1
+                self.current_action_index = i + 1
 
-            # 操作を実行
-            self.play_action(action)
+                # 操作を実行
+                self.play_action(action)
 
-            # 次の操作までの待機時間を計算
-            if i < len(self.actions) - 1:
-                current_relative_time = action.get("relative_time", 0)
-                next_relative_time = self.actions[i + 1].get("relative_time", 0)
-                wait_time = (
-                    next_relative_time - current_relative_time
-                ) / speed_multiplier
+                # 次の操作までの待機時間を計算
+                if i < len(self.actions) - 1:
+                    current_relative_time = action.get("relative_time", 0)
+                    next_relative_time = self.actions[i + 1].get("relative_time", 0)
+                    wait_time = (
+                        next_relative_time - current_relative_time
+                    ) / speed_multiplier
 
-                if wait_time > 0:
-                    time.sleep(wait_time)
+                    if wait_time > 0:
+                        # 待機時間を細かく分割して強制停止をチェック
+                        sleep_interval = 0.1  # 0.1秒ごとにチェック
+                        total_sleep = 0
+                        while total_sleep < wait_time and not self.force_stop:
+                            time.sleep(min(sleep_interval, wait_time - total_sleep))
+                            total_sleep += sleep_interval
+
+        finally:
+            # キーボードリスナーを停止
+            self._stop_keyboard_listener()
 
         end_time = time.time()
         actual_duration = end_time - start_time
 
-        print(f"[PLAY] 再生完了")
+        if self.force_stop:
+            print(f"[PLAY] 強制停止")
+        else:
+            print(f"[PLAY] 再生完了")
+        print(f"[PLAY] 実際の再生時間: {actual_duration:.2f}秒")
+        self.is_playing = False
+
+    def play_all_actions_fast(self, interval=0.05):
+        """相対時間を無視して指定間隔で操作を再生"""
+        if not self.actions:
+            print("[ERROR] 再生する操作がありません")
+            return
+
+        self.is_playing = True
+        self.force_stop = False
+        self.current_action_index = 0
+
+        # キーボードリスナーを開始
+        self._start_keyboard_listener()
+
+        print(f"[PLAY] 高速再生開始 (相対時間を無視、間隔: {interval}秒)")
+        print(f"[PLAY] 操作数: {self.total_actions}")
+        print("[PLAY] 再生中にESCキーを押すと強制停止できます")
+
+        start_time = time.time()
+
+        try:
+            for i, action in enumerate(self.actions):
+                if not self.is_playing or self.force_stop:
+                    print("[PLAY] 再生を停止しました")
+                    break
+
+                self.current_action_index = i + 1
+                self.play_action(action)
+
+                # 指定された間隔で待機（強制停止をチェックしながら）
+                if interval > 0:
+                    sleep_interval = 0.1  # 0.1秒ごとにチェック
+                    total_sleep = 0
+                    while total_sleep < interval and not self.force_stop:
+                        time.sleep(min(sleep_interval, interval - total_sleep))
+                        total_sleep += sleep_interval
+
+        finally:
+            # キーボードリスナーを停止
+            self._stop_keyboard_listener()
+
+        end_time = time.time()
+        actual_duration = end_time - start_time
+
+        if self.force_stop:
+            print(f"[PLAY] 強制停止")
+        else:
+            print(f"[PLAY] 高速再生完了")
         print(f"[PLAY] 実際の再生時間: {actual_duration:.2f}秒")
         self.is_playing = False
 
@@ -272,12 +395,12 @@ def print_help():
     print("1: 通常速度で再生")
     print("2: 2倍速で再生")
     print("3: 3倍速で再生")
-    #print("s: 再生停止")
+    print("t: 相対時間を無視して高速再生（間隔を指定可能）")
     print("h: このヘルプを表示")
     print("q: プログラム終了")
     print("=" * 60)
     print("再生中は操作が自動実行されます")
-    print("注意: 再生前に適切なウィンドウをアクティブにしてください")
+    print("再生中にESCキーを押すと強制停止できます")
     print("=" * 60 + "\n")
 
 
@@ -315,6 +438,12 @@ def main(filename):
             elif key == "3":
                 print("[INFO] 3倍速で再生開始...")
                 player.play_all_actions(speed_multiplier=3.0)
+                print("[INFO] 次のコマンドを待機中...")
+
+            elif key == "t":
+                print("[INFO] 設定した間隔で再生開始...")
+                interval = get_interval_input()
+                player.play_all_actions_fast(interval)
                 print("[INFO] 次のコマンドを待機中...")
 
             elif key == "h":

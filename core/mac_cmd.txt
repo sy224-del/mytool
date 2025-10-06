@@ -1,0 +1,53 @@
+# 同時押しコマンド定義ファイル
+# フォーマット: key+key(+key...)=説明
+
+# 注意点
+# optionキーは、altで記述してください。
+# コメントになっている操作は、macのセキュリティーにより動かないものです。
+
+# Finder/ファイル操作
+cmd+n=新しいFinderウィンドウを開く
+cmd+t=Finderで新しいタブを開く
+cmd+shift+n=新しいフォルダを作成
+cmd+o=選択中のアイテムを開く
+cmd+delete=ゴミ箱に入れる
+cmd+i=情報を見る
+cmd+d=複製
+cmd+shift+d=デスクトップを表示
+
+# ウィンドウ/アプリケーション操作
+cmd+tab=アプリ切り替え
+cmd+m=最小化
+cmd+w=ウィンドウを閉じる
+ctrl+cmd+f=フルスクリーン切替
+
+# スクリーンショット
+shift+cmd+3=画面全体を撮影
+shift+cmd+4=選択範囲を撮影
+shift+cmd+4+space=ウィンドウを撮影
+
+# 編集/テキスト操作
+cmd+c=コピー
+cmd+x=カット
+cmd+v=ペースト
+cmd+z=元に戻す
+cmd+a=すべて選択
+cmd+f=検索
+
+# ナビゲーション/カーソル移動
+cmd+right=行末に移動
+cmd+left=行頭に移動
+alt+right=次の単語へ移動
+alt+left=前の単語へ移動
+shift+up=範囲選択
+shift+down=範囲選択
+shift+right=範囲選択
+shift+left=範囲選択
+cmd+up=先頭へ移動
+cmd+down=末尾へ移動
+
+# Mission Control/デスクトップ (pyautoguiを使用することで実装可能)
+# ctrl+up=Mission Control表示
+# ctrl+down=アプリのウィンドウを表示
+# ctrl+right=次のデスクトップへ
+# ctrl+left=前のデスクトップへ

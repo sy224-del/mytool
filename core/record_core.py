@@ -45,7 +45,7 @@ def get_string_input(prompt="入力してください: "):
 
             # Enterキーで確定
             if ch == "\r" or ch == "\n":
-                print()  # 改行
+                print("\r", end="")  # 改行
                 break
             # Backspaceキーで削除
             elif ch == "\x7f" or ch == "\x08":  # Backspace
@@ -198,31 +198,45 @@ class ClickDetector:
 class KeyboardDetector:
     def __init__(self, recording_manager=None):
         self.pressed_keys = set()  # 現在押されているキーのセット
-        self.key_combinations = {
-            frozenset(["ctrl", "c"]): "コピー",
-            frozenset(["ctrl", "v"]): "ペースト",
-            frozenset(["ctrl", "z"]): "元に戻す",
-            frozenset(["ctrl", "y"]): "やり直し",
-            frozenset(["ctrl", "a"]): "全選択",
-            frozenset(["ctrl", "s"]): "保存",
-            frozenset(["ctrl", "f"]): "検索",
-            frozenset(["alt", "tab"]): "アプリ切り替え",
-            frozenset(["ctrl", "alt", "delete"]): "タスクマネージャー",
-            frozenset(["windows", "d"]): "デスクトップ表示",
-            frozenset(["windows", "e"]): "エクスプローラー",
-            frozenset(["windows", "r"]): "ファイル名を指定して実行",
-            frozenset(["ctrl", "shift", "esc"]): "タスクマネージャー（直接）",
-            frozenset(["ctrl", "cmd", "f"]): "ウィンドウを拡大と縮小",
-        }
+        self.pressed_order = []  # 押下順を保持（重複なし）
+        self.key_combinations = {}
         self.recording_manager = recording_manager
+        # OS判定して core/mac_cmd.txt または core/windows_cmd.txt を読み込み
+        try:
+            core_dir = os.path.dirname(__file__)
+            if sys.platform.startswith("darwin"):
+                cmd_path = os.path.join(core_dir, "mac_cmd.txt")
+            elif sys.platform.startswith("win"):
+                cmd_path = os.path.join(core_dir, "windows_cmd.txt")
+            else:
+                # その他OSの場合は何もしない（必要ならlinux_cmd.txtなどに拡張）
+                cmd_path = None
+
+            if cmd_path and os.path.exists(cmd_path):
+                self.load_key_combinations_from_txt(cmd_path)
+                print(f"[KEYBOARD] コマンド定義を読み込み: {cmd_path}", end="\n\r")
+            else:
+                print(
+                    "[KEYBOARD] OS対応のコマンド定義ファイルが見つかりませんでした",
+                    end="\n\r",
+                )
+        except Exception as e:
+            print(f"[KEYBOARD] コマンド定義の読込に失敗しました: {e}", end="\n\r")
 
     def on_key_press(self, key):
         """キーが押された時の処理"""
+        # ファイル名入力中はキーイベントを無視
+        if self.recording_manager and getattr(
+            self.recording_manager, "is_inputting_filename", False
+        ):
+            return
         try:
             # キー名を取得
             key_name = self.get_key_name(key)
             if key_name:
                 self.pressed_keys.add(key_name)
+                if key_name not in self.pressed_order:
+                    self.pressed_order.append(key_name)
                 print(f"[KEYBOARD] キー押下: {key_name}", end="\n\r")
 
                 # 記録コールバックを呼び出し
@@ -245,10 +259,17 @@ class KeyboardDetector:
 
     def on_key_release(self, key):
         """キーが離された時の処理"""
+        # ファイル名入力中はキーイベントを無視
+        if self.recording_manager and getattr(
+            self.recording_manager, "is_inputting_filename", False
+        ):
+            return
         try:
             key_name = self.get_key_name(key)
             if key_name and key_name in self.pressed_keys:
                 self.pressed_keys.discard(key_name)
+                if key_name in self.pressed_order:
+                    self.pressed_order.remove(key_name)
                 print(f"[KEYBOARD] キー離上: {key_name}", end="\n\r")
 
                 # 記録コールバックを呼び出し
@@ -283,21 +304,27 @@ class KeyboardDetector:
         if len(self.pressed_keys) >= 2:
             key_set = frozenset(self.pressed_keys)
             if key_set in self.key_combinations:
+                ordered_keys = [k for k in self.pressed_order if k in key_set]
+                print(len(ordered_keys))
                 print(
-                    f"[KEYBOARD] 同時押し検出: {' + '.join(self.pressed_keys)} → {self.key_combinations[key_set]}",
+                    f"[KEYBOARD] 同時押し検出: {' + '.join(ordered_keys)} → {self.key_combinations[key_set]}",
                     end="\n\r",
                 )
+
+                """self.recording_manager.remove_last_actions(
+                    len(ordered_keys)
+                )  # 同時押しの組み合わせを削除
 
                 # 記録コールバックを呼び出し
                 if self.recording_manager:
                     self.recording_manager.add_action(
                         {
                             "type": "key_combination",
-                            "keys": list(self.pressed_keys),
+                            "keys": ordered_keys,
                             "action": self.key_combinations[key_set],
                             "timestamp": time.time(),
                         }
-                    )
+                    )"""
 
     def get_current_keys(self):
         """現在押されているキーを取得"""
@@ -313,14 +340,48 @@ class KeyboardDetector:
                 end="\n\r",
             )
 
+    def load_key_combinations_from_txt(self, filepath=None):
+        """core/cmd.txt を読み込み、同時押しコマンドを追加/上書きする
+
+        フォーマット（行単位）:
+          - コメント: 行頭が # の行は無視
+          - 空行は無視
+          - 定義: "ctrl+shift+a=説明文" のように、左辺は'+'区切りのキー名、右辺は説明
+            例) ctrl+cmd+f=ウィンドウを拡大と縮小
+
+        キー名は小文字で扱う。既存定義とキーセットが同じ場合は説明を上書き。
+        """
+        if filepath is None:
+            # 本ファイルからの相対で core/cmd.txt を想定
+            core_dir = os.path.dirname(__file__)
+            filepath = os.path.join(core_dir, "cmd.txt")
+
+        if not os.path.exists(filepath):
+            return
+
+        with open(filepath, "r", encoding="utf-8") as f:
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" not in line:
+                    continue
+                left, right = line.split("=", 1)
+                combo = [k.strip().lower() for k in left.split("+") if k.strip()]
+                description = right.strip()
+                if not combo or not description:
+                    continue
+                # セット化して登録
+                key_set = frozenset(combo)
+                self.key_combinations[key_set] = description
+        print("[KEYBOARD] cmd.txtから同時押しコマンドを読み込みました", end="\n\r")
+
 
 class RecordingManager:
     def __init__(self):
         self.is_recording = False
         self.recorded_actions = []
         self.recording_start_time = None
-        # 記録しない制御キーのリスト
-        self.control_keys = {"s", "w", "q", "h"}
         # ファイル名入力中かどうかのフラグ
         self.is_inputting_filename = False
 
@@ -347,10 +408,6 @@ class RecordingManager:
         if action.get("type") in ["key_press", "key_release"]:
             key = action.get("key", "")
 
-            # 制御キーの場合は記録しない
-            if key in self.control_keys:
-                return
-
             # ファイル名入力中の場合は記録しない
             if self.is_inputting_filename:
                 return
@@ -373,11 +430,25 @@ class RecordingManager:
             return removed_actions
         return []
 
+    def remove_first_actions(self, count):
+        """最初の指定された数の操作を削除"""
+        if len(self.recorded_actions) >= count and count > 0:
+            removed_actions = self.recorded_actions[:count]
+            self.recorded_actions = self.recorded_actions[count:]
+            print(f"[RECORD] 最初の{count}個の操作を削除しました", end="\n\r")
+            return removed_actions
+        return []
+
     def save_to_json(self, filename=None):
         """記録された操作をJSONファイルに保存"""
         if not self.recorded_actions:
             print("[ERROR] 保存する操作がありません")
             return None
+        else:
+            self.remove_first_actions(1)  # 最初の操作を削除(sキー削除用)
+            self.remove_last_actions(
+                3
+            )  # 最後の操作を削除(ターミナークリックとwキー削除用)
 
         # records フォルダを作成（存在しない場合）
         records_dir = os.path.join(os.path.dirname(__file__), "..", "records")
@@ -429,6 +500,7 @@ class RecordingManager:
         except Exception as e:
             print(f"[ERROR] ファイル保存に失敗しました: {e}")
             return None
+
 
 def print_help():
     """ヘルプメッセージを表示"""

@@ -1,0 +1,129 @@
+{
+  "metadata": {
+    "created_at": "2025-10-04T21:45:51.855456",
+    "total_actions": 18,
+    "recording_duration": 16.9909930229187
+  },
+  "actions": [
+    {
+      "type": "mouse_double_click",
+      "x": 1471.400390625,
+      "y": 643.2833251953125,
+      "timestamp": 1759581927.653923,
+      "relative_time": 3.5941691398620605
+    },
+    {
+      "type": "key_press",
+      "key": "ctrl",
+      "timestamp": 1759581930.19399,
+      "relative_time": 6.134236097335815
+    },
+    {
+      "type": "key_press",
+      "key": "cmd",
+      "timestamp": 1759581930.441835,
+      "relative_time": 6.382081031799316
+    },
+    {
+      "type": "key_press",
+      "key": "f",
+      "timestamp": 1759581931.081789,
+      "relative_time": 7.022035121917725
+    },
+    {
+      "type": "key_release",
+      "key": "f",
+      "timestamp": 1759581931.148937,
+      "relative_time": 7.08918309211731
+    },
+    {
+      "type": "key_release",
+      "key": "ctrl",
+      "timestamp": 1759581931.644414,
+      "relative_time": 7.584660053253174
+    },
+    {
+      "type": "key_release",
+      "key": "cmd",
+      "timestamp": 1759581931.6557078,
+      "relative_time": 7.595953941345215
+    },
+    {
+      "type": "mouse_double_click",
+      "x": 642.2056274414062,
+      "y": 121.76351928710938,
+      "timestamp": 1759581933.839995,
+      "relative_time": 9.780241012573242
+    },
+    {
+      "type": "key_press",
+      "key": "ctrl",
+      "timestamp": 1759581935.7287529,
+      "relative_time": 11.668998956680298
+    },
+    {
+      "type": "key_press",
+      "key": "cmd",
+      "timestamp": 1759581935.953877,
+      "relative_time": 11.894123077392578
+    },
+    {
+      "type": "key_press",
+      "key": "f",
+      "timestamp": 1759581936.312961,
+      "relative_time": 12.253207206726074
+    },
+    {
+      "type": "key_release",
+      "key": "f",
+      "timestamp": 1759581936.379915,
+      "relative_time": 12.32016110420227
+    },
+    {
+      "type": "key_release",
+      "key": "cmd",
+      "timestamp": 1759581937.077475,
+      "relative_time": 13.017721176147461
+    },
+    {
+      "type": "key_release",
+      "key": "ctrl",
+      "timestamp": 1759581937.0890439,
+      "relative_time": 13.029289960861206
+    },
+    {
+      "type": "mouse_press",
+      "x": 1267.487060546875,
+      "y": 6.888092041015625,
+      "button": "Button.left",
+      "timestamp": 1759581939.363106,
+      "relative_time": 15.303352117538452
+    },
+    {
+      "type": "mouse_release",
+      "x": 1267.487060546875,
+      "y": 6.888092041015625,
+      "button": "Button.left",
+      "duration": 0.1014089584350586,
+      "timestamp": 1759581939.464515,
+      "relative_time": 15.40476107597351
+    },
+    {
+      "type": "mouse_press",
+      "x": 1285.885498046875,
+      "y": 66.17062377929688,
+      "button": "Button.left",
+      "timestamp": 1759581940.950254,
+      "relative_time": 16.89050006866455
+    },
+    {
+      "type": "mouse_release",
+      "x": 1285.885498046875,
+      "y": 66.17062377929688,
+      "button": "Button.left",
+      "duration": 0.10049295425415039,
+      "timestamp": 1759581941.050747,
+      "relative_time": 16.9909930229187
+    }
+  ]
+}

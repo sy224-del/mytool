@@ -1,0 +1,91 @@
+{
+  "metadata": {
+    "created_at": "2025-10-05T22:08:15.049797",
+    "total_actions": 12,
+    "recording_duration": 6.82067608833313
+  },
+  "actions": [
+    {
+      "type": "mouse_press",
+      "x": 824.7152099609375,
+      "y": 774.6928100585938,
+      "button": "Button.left",
+      "timestamp": 1759669685.739646,
+      "relative_time": 1.4886500835418701
+    },
+    {
+      "type": "mouse_release",
+      "x": 824.7152099609375,
+      "y": 774.6928100585938,
+      "button": "Button.left",
+      "duration": 0.10013103485107422,
+      "timestamp": 1759669685.839777,
+      "relative_time": 1.5887811183929443
+    },
+    {
+      "type": "mouse_press",
+      "x": 824.7152099609375,
+      "y": 774.6928100585938,
+      "button": "Button.left",
+      "timestamp": 1759669687.107332,
+      "relative_time": 2.8563361167907715
+    },
+    {
+      "type": "mouse_release",
+      "x": 824.7152099609375,
+      "y": 774.6928100585938,
+      "button": "Button.left",
+      "duration": 0.08236408233642578,
+      "timestamp": 1759669687.189696,
+      "relative_time": 2.9387001991271973
+    },
+    {
+      "type": "key_press",
+      "key": "ctrl",
+      "timestamp": 1759669688.810051,
+      "relative_time": 4.5590550899505615
+    },
+    {
+      "type": "key_press",
+      "key": "right",
+      "timestamp": 1759669689.102658,
+      "relative_time": 4.8516621589660645
+    },
+    {
+      "type": "key_release",
+      "key": "right",
+      "timestamp": 1759669689.172388,
+      "relative_time": 4.921392202377319
+    },
+    {
+      "type": "key_release",
+      "key": "ctrl",
+      "timestamp": 1759669689.4510841,
+      "relative_time": 5.200088262557983
+    },
+    {
+      "type": "key_press",
+      "key": "ctrl",
+      "timestamp": 1759669690.531528,
+      "relative_time": 6.280532121658325
+    },
+    {
+      "type": "key_press",
+      "key": "left",
+      "timestamp": 1759669690.711461,
+      "relative_time": 6.4604651927948
+    },
+    {
+      "type": "key_release",
+      "key": "left",
+      "timestamp": 1759669690.8118029,
+      "relative_time": 6.5608069896698
+    },
+    {
+      "type": "key_release",
+      "key": "ctrl",
+      "timestamp": 1759669691.071672,
+      "relative_time": 6.82067608833313
+    }
+  ]
+}
