@@ -3,27 +3,38 @@ import json
 import time
 import pyautogui
 import sys
-import termios
-import tty
+import platform
 from pynput import mouse, keyboard
 from datetime import datetime
 import argparse
 import threading
 
+# プラットフォーム別の入力処理
+if platform.system() == "Windows":
+    import msvcrt
+else:
+    import termios
+    import tty
+
 
 # 1文字だけキーボード入力を取得する（Enter不要）
 def getch():
     """1文字読み込み（Enter不要）"""
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(fd)
-        ch = sys.stdin.read(1)
-    except:
-        pass
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return ch
+    if platform.system() == "Windows":
+        # Windows用
+        return msvcrt.getch().decode("utf-8")
+    else:
+        # Linux/macOS用
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            ch = sys.stdin.read(1)
+        except:
+            pass
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return ch
 
 
 def get_interval_input():
@@ -33,10 +44,11 @@ def get_interval_input():
     print("[INPUT] デフォルト値: 0.05秒")
 
     try:
-        # 通常の入力モードに戻す
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        # 通常の入力モードに戻す（Linux/macOSのみ）
+        if platform.system() != "Windows":
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
         user_input = input("間隔(秒): ").strip()
 

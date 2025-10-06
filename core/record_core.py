@@ -2,8 +2,7 @@ import cv2
 import numpy as np
 import pyautogui
 import sys
-import termios
-import tty
+import platform
 import time
 import matplotlib.pyplot as plt
 from pynput import mouse, keyboard
@@ -13,18 +12,29 @@ import json
 import os
 from datetime import datetime
 
+# プラットフォーム別の入力処理
+if platform.system() == "Windows":
+    import msvcrt
+else:
+    import termios
+    import tty
+
 
 # 1文字だけキーボード入力を取得する（Enter不要）
 def getch():
     """1文字読み込み（Enter不要）"""
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(fd)
-        ch = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return ch
+    if platform.system() == "Windows":
+        # Windows: 1文字取得（Enter不要）。Unicode対応のgetwchを使用
+        return msvcrt.getwch()
+    else:
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return ch
 
 
 # 文字列入力を取得する（Enterで確定）
@@ -32,34 +42,45 @@ def get_string_input(prompt="入力してください: "):
     """文字列入力を取得（Enterで確定）"""
     print(prompt, end="", flush=True)
 
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-
-    try:
-        # カノニカルモードを無効化
-        tty.setraw(fd)
-
+    # Windows: msvcrtで逐次入力し、Enterで確定・Backspace対応
+    if platform.system() == "Windows":
         input_string = ""
         while True:
-            ch = sys.stdin.read(1)
-
-            # Enterキーで確定
-            if ch == "\r" or ch == "\n":
-                print("\r", end="")  # 改行
+            ch = msvcrt.getwch()
+            if ch in ("\r", "\n"):
+                print("\r", end="")
                 break
-            # Backspaceキーで削除
-            elif ch == "\x7f" or ch == "\x08":  # Backspace
+            elif ch == "\x08":  # Backspace
                 if input_string:
                     input_string = input_string[:-1]
-                    # カーソルを1文字戻して空白で上書き
                     sys.stdout.write("\b \b")
                     sys.stdout.flush()
-            # 通常の文字
             else:
                 input_string += ch
                 sys.stdout.write(ch)
                 sys.stdout.flush()
+        return input_string
 
+    # Linux/macOS: 既存のrawモードで1文字ずつ読み取り
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setraw(fd)
+        input_string = ""
+        while True:
+            ch = sys.stdin.read(1)
+            if ch == "\r" or ch == "\n":
+                print("\r", end="")
+                break
+            elif ch == "\x7f" or ch == "\x08":  # Backspace
+                if input_string:
+                    input_string = input_string[:-1]
+                    sys.stdout.write("\b \b")
+                    sys.stdout.flush()
+            else:
+                input_string += ch
+                sys.stdout.write(ch)
+                sys.stdout.flush()
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
